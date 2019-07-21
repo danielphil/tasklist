@@ -42,5 +42,16 @@ public class TaskDatabase {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+
+        try {
+            Statement statement = connection.createStatement();
+            String task_create = "CREATE TABLE IF NOT EXISTS weeks (\n" +
+                    " id INTEGER PRIMARY KEY, \n" +
+                    " date INTEGER NOT NULL, \n" +
+                    " taskId INTEGER NOT NULL);";
+            statement.execute(task_create);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
