@@ -1,8 +1,4 @@
-package day;
-
-import task.ITaskSerialiser;
-
-import java.util.function.Supplier;
+package timeperiod;
 
 public interface IDaySerialiser {
     void persist(Day day);

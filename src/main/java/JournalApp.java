@@ -1,5 +1,5 @@
-import day.Day;
-import day.IDaySerialiser;
+import timeperiod.Day;
+import timeperiod.IDaySerialiser;
 import task.ITaskSerialiser;
 import task.TaskSerialiser;
 
@@ -27,8 +27,8 @@ public class JournalApp {
         t.setCompleted(true);
         long id = ((TaskSerialiser)t.serialiser).getId().get();
 
-        Supplier<IDaySerialiser> daySerializer = () -> new day.DaySerialiser(db, createSerialiser);
-        day.Day day = new Day(daySerializer, LocalDate.now());
+        Supplier<IDaySerialiser> daySerializer = () -> new timeperiod.DaySerialiser(db, createSerialiser);
+        timeperiod.Day day = new Day(daySerializer, LocalDate.now());
         day.addTask(t);
 
         day = new Day(daySerializer, LocalDate.now());

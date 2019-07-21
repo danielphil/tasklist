@@ -1,4 +1,4 @@
-package day;
+package timeperiod;
 
 import task.ITaskSerialiser;
 import task.Task;
@@ -8,7 +8,6 @@ import task.TaskSerialiser;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class DaySerialiser implements IDaySerialiser {
