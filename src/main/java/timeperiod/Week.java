@@ -33,9 +33,4 @@ public class Week {
     public Iterable<Task> getTasks() {
         return tasks;
     }
-
-    @Override
-    public String toString() {
-        return String.format("%d2-%d4", weekNumber, year);
-    }
 }
