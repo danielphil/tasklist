@@ -1,6 +1,9 @@
+import day.Day;
+import day.IDaySerialiser;
 import task.ITaskSerialiser;
 import task.TaskSerialiser;
 
+import java.time.LocalDate;
 import java.util.function.Supplier;
 
 public class JournalApp {
@@ -24,8 +27,16 @@ public class JournalApp {
         t.setCompleted(true);
         long id = ((TaskSerialiser)t.serialiser).getId().get();
 
-        task.Task restored = new task.Task(createSerialiser, id);
-        System.out.println(restored.getDescription());
-        System.out.println(restored.getCompleted());
+        Supplier<IDaySerialiser> daySerializer = () -> new day.DaySerialiser(db, createSerialiser);
+        day.Day day = new Day(daySerializer, LocalDate.now());
+        day.addTask(t);
+
+        day = new Day(daySerializer, LocalDate.now());
+        System.out.println(day.getDay().toString());
+        for (task.Task task : day.getTasks()) {
+            System.out.println(task.getDescription());
+            System.out.println(task.getCompleted());
+            task.setCompleted(false);
+        }
     }
 }

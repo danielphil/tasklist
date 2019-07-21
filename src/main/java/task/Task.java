@@ -10,6 +10,7 @@ public class Task {
 
     public Task(Supplier<ITaskSerialiser> serialiserFactory) {
         serialiser = serialiserFactory.get();
+        serialiser.persist(this);
     }
 
     public Task(Supplier<ITaskSerialiser> serialiserFactory, long id) {

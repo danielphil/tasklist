@@ -23,10 +23,21 @@ public class TaskDatabase {
             Statement statement = connection.createStatement();
             String task_create = "CREATE TABLE IF NOT EXISTS tasks (\n" +
                     " id INTEGER PRIMARY KEY, \n" +
-                    " description TEXT NOT NULL, \n" +
+                    " description TEXT, \n" +
                     " completed INTEGER NOT NULL, \n" +
                     " period_type INTEGER NOT NULL, \n" +
                     " period_id INTEGER NOT NULL);";
+            statement.execute(task_create);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            Statement statement = connection.createStatement();
+            String task_create = "CREATE TABLE IF NOT EXISTS days (\n" +
+                    " id INTEGER PRIMARY KEY, \n" +
+                    " date TEXT NOT NULL, \n" +
+                    " taskId INTEGER NOT NULL);";
             statement.execute(task_create);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
