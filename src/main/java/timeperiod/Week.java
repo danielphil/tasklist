@@ -6,17 +6,15 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
-public class Week {
+public class Week extends TimePeriod {
     private final int weekNumber;
     private final int year;
-    private final IWeekSerialiser serialiser;
-    private final ArrayList<Task> tasks = new ArrayList<>();
 
-    public Week(Supplier<IWeekSerialiser> serialiserFactory, int weekNumber, int year) {
-        serialiser = serialiserFactory.get();
+    public Week(Supplier<ITimePeriodSerialiser> serialiserFactory, int weekNumber, int year) {
+        super(serialiserFactory);
         this.weekNumber = weekNumber;
         this.year = year;
-        serialiser.restore(this);
+        restore();
     }
 
     public int getWeekNumber() {
@@ -25,12 +23,13 @@ public class Week {
 
     public int getYear() { return year; }
 
-    public void addTask(Task task) {
-        tasks.add(task);
-        serialiser.persist(this);
+    @Override
+    protected String getStringRepresentation() {
+        return String.format("%d2-%d4", weekNumber, year);
     }
 
-    public Iterable<Task> getTasks() {
-        return tasks;
+    @Override
+    protected String getTableName() {
+        return "weeks";
     }
 }
