@@ -4,6 +4,8 @@ import task.TaskSerialiser;
 import timeperiod.ITimePeriodSerialiser;
 import timeperiod.TimePeriodSerialiser;
 
+import javax.swing.*;
+import java.awt.*;
 import java.time.LocalDate;
 import java.util.function.Supplier;
 
@@ -27,5 +29,36 @@ public class JournalApp {
             System.out.println(task.getCompleted());
             task.setCompleted(false);
         }
+
+        javax.swing.SwingUtilities.invokeLater(() -> createGui());
+    }
+
+    public static void createGui() {
+        JFrame frame = new JFrame("HelloWorldSwing!");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+        JPanel weekGrid = new JPanel(new GridLayout(5, 0));
+        for (int i = 0; i < 5; i++) {
+            JPanel dayGrid = new JPanel(new GridLayout(0, 2));
+
+            JPanel taskPanel = new gui.TaskEditor();
+
+            dayGrid.add(new JLabel("Monday 22 July 2019"));
+            dayGrid.add(taskPanel);
+
+            JPanel dayAndBorder = new JPanel();
+            dayAndBorder.setLayout(new BoxLayout(dayAndBorder, BoxLayout.PAGE_AXIS));
+            dayAndBorder.add(dayGrid);
+            dayAndBorder.add(new JSeparator(SwingConstants.HORIZONTAL));
+
+            weekGrid.add(dayAndBorder);
+        }
+
+        frame.getContentPane().add(weekGrid);
+
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 }
