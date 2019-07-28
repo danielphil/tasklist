@@ -9,22 +9,16 @@ import java.awt.event.FocusEvent;
 public class TaskEditor extends JPanel {
     private final JTextField editorField;
     private final JButton labelButton;
+    private final JCheckBox completeCheckbox;
+    private final TaskModel taskModel;
 
-    public TaskEditor() {
+    public TaskEditor(TaskModel taskModel) {
         super(new FlowLayout(FlowLayout.LEFT));
+
+        this.taskModel = taskModel;
+
         editorField = new JTextField(20);
-
-        labelButton = new JButton("Text goes here");
-        labelButton.setFocusPainted(false);
-        labelButton.setMargin(new Insets(0, 0, 0, 0));
-        labelButton.setContentAreaFilled(false);
-        labelButton.setBorderPainted(false);
-        labelButton.setOpaque(false);
-        labelButton.setBorder(makeBorder());
-
-        labelButton.addActionListener((ActionEvent e) -> {
-            startEditing();
-        });
+        editorField.setText(taskModel.getDescription());
 
         editorField.addActionListener((ActionEvent e) -> {
             stopEditing();
@@ -38,7 +32,25 @@ public class TaskEditor extends JPanel {
 
         editorField.addFocusListener(new FocusLossListener(() -> stopEditing()));
 
-        add(new JCheckBox());
+        labelButton = new JButton(taskModel.getDescription());
+        labelButton.setFocusPainted(false);
+        labelButton.setMargin(new Insets(0, 0, 0, 0));
+        labelButton.setContentAreaFilled(false);
+        labelButton.setBorderPainted(false);
+        labelButton.setOpaque(false);
+        labelButton.setBorder(makeBorder());
+
+        labelButton.addActionListener((ActionEvent e) -> {
+            startEditing();
+        });
+
+        completeCheckbox = new JCheckBox();
+        completeCheckbox.setSelected(taskModel.getCompleted());
+        completeCheckbox.addActionListener((ActionEvent e) -> {
+            taskModel.setCompleted(completeCheckbox.isSelected());
+        });
+
+        add(completeCheckbox);
         add(labelButton);
     }
 
@@ -52,6 +64,8 @@ public class TaskEditor extends JPanel {
 
     private void stopEditing() {
         labelButton.setText(editorField.getText());
+        taskModel.setDescription(editorField.getText());
+
         remove(editorField);
         add(labelButton);
         // need to do this for some reason to stop the border getting re-added

@@ -1,3 +1,4 @@
+import gui.TaskModel;
 import timeperiod.Day;
 import task.ITaskSerialiser;
 import task.TaskSerialiser;
@@ -42,7 +43,7 @@ public class JournalApp {
         for (int i = 0; i < 5; i++) {
             JPanel dayGrid = new JPanel(new GridLayout(0, 2));
 
-            JPanel taskPanel = new gui.TaskEditor();
+            JPanel taskPanel = new gui.TaskEditor(new TaskModel("empty task", true));
 
             dayGrid.add(new JLabel("Monday 22 July 2019"));
             dayGrid.add(taskPanel);
