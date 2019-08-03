@@ -5,15 +5,19 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.function.Consumer;
 
 public class TaskEditor extends JPanel {
     private final JTextField editorField;
     private final JButton labelButton;
     private final JCheckBox completeCheckbox;
     private final TaskModel taskModel;
+    private Consumer<TaskEditor> editCompleteCallback;
+    private Consumer<TaskEditor> onDeletedCallback;
 
     public TaskEditor(TaskModel taskModel) {
-        super(new FlowLayout(FlowLayout.LEFT));
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setAlignmentX(Component.LEFT_ALIGNMENT);
 
         this.taskModel = taskModel;
 
@@ -21,16 +25,16 @@ public class TaskEditor extends JPanel {
         editorField.setText(taskModel.getDescription());
 
         editorField.addActionListener((ActionEvent e) -> {
-            stopEditing();
+            stopEditing(false);
         });
 
         InputMap inputMap = editorField.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap actionMap = editorField.getActionMap();
         String cancelAction = "cancel";
         inputMap.put(KeyStroke.getKeyStroke("ESCAPE"), cancelAction);
-        actionMap.put(cancelAction, new CancelAction(() -> stopEditing()));
+        actionMap.put(cancelAction, new CancelAction(this::stopEditing));
 
-        editorField.addFocusListener(new FocusLossListener(() -> stopEditing()));
+        editorField.addFocusListener(new FocusLossListener(this::stopEditing));
 
         labelButton = new JButton(taskModel.getDescription());
         labelButton.setFocusPainted(false);
@@ -54,7 +58,7 @@ public class TaskEditor extends JPanel {
         add(labelButton);
     }
 
-    private void startEditing() {
+    public void startEditing() {
         remove(labelButton);
         add(editorField);
         editorField.selectAll();
@@ -62,9 +66,21 @@ public class TaskEditor extends JPanel {
         this.revalidate();
     }
 
-    private void stopEditing() {
-        labelButton.setText(editorField.getText());
-        taskModel.setDescription(editorField.getText());
+    public void setOnEditCompleteHandler(Consumer<TaskEditor> callback) {
+        editCompleteCallback = callback;
+    }
+
+    public void setOnTaskDeleted(Consumer<TaskEditor> callback) {
+        onDeletedCallback = callback;
+    }
+
+    private void stopEditing(boolean cancelled) {
+        if (cancelled) {
+            editorField.setText(taskModel.getDescription());
+        } else {
+            labelButton.setText(editorField.getText());
+            taskModel.setDescription(editorField.getText());
+        }
 
         remove(editorField);
         add(labelButton);
@@ -72,8 +88,13 @@ public class TaskEditor extends JPanel {
         if (!editorField.getText().isEmpty()) {
             labelButton.setBorder(makeBorder());
         }
+        if (editorField.getText().isEmpty() && onDeletedCallback != null) {
+            onDeletedCallback.accept(this);
+        }
+        if (editCompleteCallback != null) {
+            editCompleteCallback.accept(this);
+        }
         this.revalidate();
-        this.getRootPane().repaint();
     }
 
     private Border makeBorder() {
@@ -81,28 +102,28 @@ public class TaskEditor extends JPanel {
     }
 
     class CancelAction extends AbstractAction {
-        private final Runnable callback;
+        private final Consumer<Boolean> callback;
 
-        public CancelAction(Runnable callback) {
+        public CancelAction(Consumer<Boolean> callback) {
             this.callback = callback;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            callback.run();
+            callback.accept(true);
         }
     }
 
     class FocusLossListener extends FocusAdapter {
-        private final Runnable callback;
+        private final Consumer<Boolean> callback;
 
-        public FocusLossListener(Runnable callback) {
+        public FocusLossListener(Consumer<Boolean> callback) {
             this.callback = callback;
         }
 
         @Override
         public void focusLost(FocusEvent e) {
-            callback.run();
+            callback.accept(false);
         }
     }
 }

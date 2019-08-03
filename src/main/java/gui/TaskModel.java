@@ -4,6 +4,9 @@ public class TaskModel extends Observable {
     private boolean completed;
     private String description;
 
+    public TaskModel() {
+    }
+
     public TaskModel(String description, boolean completed) {
         this.description = description;
         this.completed = completed;

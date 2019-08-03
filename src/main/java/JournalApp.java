@@ -49,8 +49,10 @@ public class JournalApp {
             taskList.addItem(new TaskModel("empty task", true));
             taskList.addItem(new TaskModel("task2", false));
 
+            JScrollPane scrollPane = new JScrollPane(new TaskList(taskList));
+            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
             dayGrid.add(new JLabel("Monday 22 July 2019"));
-            dayGrid.add(new TaskList(taskList));
+            dayGrid.add(scrollPane);
 
             JPanel dayAndBorder = new JPanel();
             dayAndBorder.setLayout(new BoxLayout(dayAndBorder, BoxLayout.PAGE_AXIS));
