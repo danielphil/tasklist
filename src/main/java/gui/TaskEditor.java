@@ -1,4 +1,6 @@
 package gui;
+import task.Task;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -11,11 +13,11 @@ public class TaskEditor extends JPanel {
     private final JTextField editorField;
     private final JButton labelButton;
     private final JCheckBox completeCheckbox;
-    private final TaskModel taskModel;
+    private final Task taskModel;
     private Consumer<TaskEditor> editCompleteCallback;
     private Consumer<TaskEditor> onDeletedCallback;
 
-    public TaskEditor(TaskModel taskModel) {
+    public TaskEditor(Task taskModel) {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setAlignmentX(Component.LEFT_ALIGNMENT);
 

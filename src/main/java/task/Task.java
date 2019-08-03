@@ -3,7 +3,7 @@ package task;
 import java.util.function.Supplier;
 
 public class Task {
-    private String description;
+    private String description = "";
     private boolean completed;
     // TODO: make this private. This is just for quick testing at the moment
     public final ITaskSerialiser serialiser;

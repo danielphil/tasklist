@@ -19,10 +19,16 @@ public class TaskSerialiser implements ITaskSerialiser {
 
     @Override
     public void persist(Task task) {
-        if (id.isPresent()) {
-            updateTask(task);
+        if (task.getDescription().isEmpty()) {
+            if (id.isPresent()) {
+                removeTask();
+            }
         } else {
-            createTask(task);
+            if (id.isPresent()) {
+                updateTask(task);
+            } else {
+                createTask(task);
+            }
         }
     }
 
@@ -79,5 +85,17 @@ public class TaskSerialiser implements ITaskSerialiser {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private void removeTask() {
+        String sql = "DELETE FROM tasks WHERE id = ?";
+        try {
+            PreparedStatement statement = database.connection.prepareStatement(sql);
+            statement.setLong(1, id.get());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        id = Optional.empty();
     }
 }

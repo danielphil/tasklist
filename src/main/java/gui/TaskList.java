@@ -1,22 +1,29 @@
 package gui;
 
+import task.ITaskSerialiser;
+import task.Task;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.function.Supplier;
 
 public class TaskList extends JPanel {
-    private final TaskListModel model;
+    private final ArrayList<Task> tasks = new ArrayList<>();
     private final JButton addNewButton;
+    private final Supplier<ITaskSerialiser> serialiserFactory;
 
-    public TaskList(TaskListModel model) {
+    public TaskList(Supplier<ITaskSerialiser> serialiserFactory) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.model = model;
+        this.serialiserFactory = serialiserFactory;
 
+        /*
         for (TaskModel task : model.tasks()) {
             TaskEditor editor = new TaskEditor(task);
             editor.setOnTaskDeleted(this::onTaskDeleted);
             add(editor);
-        }
+        }*/
 
         addNewButton = new JButton("+");
         addNewButton.addActionListener((ActionEvent a) -> addNewItem());
@@ -39,7 +46,7 @@ public class TaskList extends JPanel {
     private void addNewItem() {
         remove(addNewButton);
 
-        TaskEditor editor = new TaskEditor(new TaskModel());
+        TaskEditor editor = new TaskEditor(new Task(serialiserFactory));
         editor.setOnTaskDeleted(this::onTaskDeleted);
         add(editor);
         editor.startEditing();

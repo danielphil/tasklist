@@ -33,10 +33,10 @@ public class JournalApp {
             task.setCompleted(false);
         }
 
-        javax.swing.SwingUtilities.invokeLater(() -> createGui());
+        javax.swing.SwingUtilities.invokeLater(() -> createGui(createSerialiser));
     }
 
-    public static void createGui() {
+    public static void createGui(Supplier<ITaskSerialiser> serialiserFactory) {
         JFrame frame = new JFrame("HelloWorldSwing!");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -49,7 +49,7 @@ public class JournalApp {
             taskList.addItem(new TaskModel("empty task", true));
             taskList.addItem(new TaskModel("task2", false));
 
-            JScrollPane scrollPane = new JScrollPane(new TaskList(taskList));
+            JScrollPane scrollPane = new JScrollPane(new TaskList(serialiserFactory));
             scrollPane.getVerticalScrollBar().setUnitIncrement(16);
             dayGrid.add(new JLabel("Monday 22 July 2019"));
             dayGrid.add(scrollPane);
