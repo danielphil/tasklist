@@ -1,3 +1,4 @@
+import gui.MainPanel;
 import gui.TaskList;
 import gui.TaskListModel;
 import gui.TaskModel;
@@ -40,29 +41,7 @@ public class JournalApp {
         JFrame frame = new JFrame("HelloWorldSwing!");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
-        JPanel weekGrid = new JPanel(new GridLayout(5, 0));
-        for (int i = 0; i < 5; i++) {
-            JPanel dayGrid = new JPanel(new GridLayout(0, 2));
-
-            TaskListModel taskList = new TaskListModel();
-            taskList.addItem(new TaskModel("empty task", true));
-            taskList.addItem(new TaskModel("task2", false));
-
-            JScrollPane scrollPane = new JScrollPane(new TaskList(serialiserFactory));
-            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-            dayGrid.add(new JLabel("Monday 22 July 2019"));
-            dayGrid.add(scrollPane);
-
-            JPanel dayAndBorder = new JPanel();
-            dayAndBorder.setLayout(new BoxLayout(dayAndBorder, BoxLayout.PAGE_AXIS));
-            dayAndBorder.add(dayGrid);
-            dayAndBorder.add(new JSeparator(SwingConstants.HORIZONTAL));
-
-            weekGrid.add(dayAndBorder);
-        }
-
-        frame.getContentPane().add(weekGrid);
+        frame.getContentPane().add(new MainPanel(serialiserFactory));
 
         frame.pack();
         frame.setLocationRelativeTo(null);
