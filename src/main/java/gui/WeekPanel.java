@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
@@ -13,6 +14,7 @@ import java.util.function.Supplier;
 
 public class WeekPanel extends JPanel {
     private Model<LocalDate> weekStart = new Model<>();
+    private JPanel currentWeekGrid = null;
 
     public WeekPanel(Supplier<ITaskSerialiser> serialiserFactory) {
         setDateToToday();
@@ -20,14 +22,26 @@ public class WeekPanel extends JPanel {
         setLayout(new BorderLayout());
 
         add(createDateSelector(), BorderLayout.NORTH);
-        add(createDayView(serialiserFactory), BorderLayout.CENTER);
+
+        Runnable createWeekGrid = () -> {
+            if (currentWeekGrid != null) {
+                remove(currentWeekGrid);
+            }
+            currentWeekGrid = createDayView(serialiserFactory);
+            add(currentWeekGrid, BorderLayout.CENTER);
+        };
+
+        createWeekGrid.run();
         add(createWeekView(serialiserFactory), BorderLayout.EAST);
+
+        weekStart.observe(createWeekGrid);
     }
 
     private JPanel createDateSelector() {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel currentWeekLabel = new JLabel();
-        Runnable updateWeek = () -> currentWeekLabel.setText(weekStart.get().toString());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("w u");
+        Runnable updateWeek = () -> currentWeekLabel.setText("Week " + weekStart.get().format(formatter));
         weekStart.observe(updateWeek);
         updateWeek.run();
 
@@ -58,13 +72,16 @@ public class WeekPanel extends JPanel {
     }
 
     private JPanel createDayView(Supplier<ITaskSerialiser> serialiserFactory) {
+        LocalDate date = weekStart.get();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E d MMM");
+
         JPanel weekGrid = new JPanel(new GridLayout(5, 0));
         for (int i = 0; i < 5; i++) {
             JPanel dayGrid = new JPanel(new GridLayout(0, 2));
 
             JScrollPane scrollPane = new JScrollPane(new TaskList(serialiserFactory));
             scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-            dayGrid.add(new JLabel("Monday 22 July 2019"));
+            dayGrid.add(new JLabel(date.format(formatter)));
             dayGrid.add(scrollPane);
 
             JPanel dayAndBorder = new JPanel();
@@ -73,6 +90,8 @@ public class WeekPanel extends JPanel {
             dayAndBorder.add(new JSeparator(SwingConstants.HORIZONTAL));
 
             weekGrid.add(dayAndBorder);
+
+            date = date.plusDays(1);
         }
         return weekGrid;
     }
@@ -96,9 +115,5 @@ public class WeekPanel extends JPanel {
 
     private void forwardOneWeek() {
         weekStart.set(weekStart.get().plusWeeks(1));
-    }
-
-    private void updateViews() {
-
     }
 }
