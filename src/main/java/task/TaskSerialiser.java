@@ -8,6 +8,8 @@ import java.util.Optional;
 public class TaskSerialiser implements ITaskSerialiser {
     private TaskDatabase database;
     private Optional<Long> id = Optional.empty();
+    boolean restoring = false;
+
 
     public TaskSerialiser(TaskDatabase database) {
         this.database = database;
@@ -19,6 +21,10 @@ public class TaskSerialiser implements ITaskSerialiser {
 
     @Override
     public void persist(Task task) {
+        if (restoring) {
+            return;
+        }
+
         if (task.getDescription().isEmpty()) {
             if (id.isPresent()) {
                 removeTask();
@@ -35,6 +41,7 @@ public class TaskSerialiser implements ITaskSerialiser {
     @Override
     public void restore(long id, Task task) {
         String sql = "SELECT description, completed FROM tasks WHERE id = ?";
+        restoring = true;
         try {
             PreparedStatement statement = database.connection.prepareStatement(sql);
             statement.setLong(1, id);
@@ -50,6 +57,8 @@ public class TaskSerialiser implements ITaskSerialiser {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Failed to get task");
+        } finally {
+            restoring = false;
         }
     }
 

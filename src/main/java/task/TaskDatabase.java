@@ -1,6 +1,11 @@
 package task;
 
+import gui.NewTimePeriod;
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 public class TaskDatabase {
     public final Connection connection;
@@ -94,5 +99,26 @@ public class TaskDatabase {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public ArrayList<Task> restore(Supplier<ITaskSerialiser> serialiserFactory, NewTimePeriod timePeriod) {
+        ArrayList<Task> tasks = new ArrayList<>();
+
+        String sql = "SELECT id FROM tasks WHERE period_type = ? AND period_date = ?";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, timePeriod.getType().ordinal());
+            statement.setString(2, timePeriod.getDate().toString());
+            ResultSet results = statement.executeQuery();
+            while (results.next()) {
+                long id = results.getLong(1);
+                tasks.add(new Task(serialiserFactory, id));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException("Failed to get task");
+        }
+
+        return tasks;
     }
 }
