@@ -64,5 +64,35 @@ public class TaskDatabase {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+
+        try {
+            Statement statement = connection.createStatement();
+            String task_create = "CREATE INDEX IF NOT EXISTS tasks_days\n" +
+                    " ON tasks(period_date, period_type)\n" +
+                    " WHERE period_type = 0;";
+            statement.execute(task_create);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            Statement statement = connection.createStatement();
+            String task_create = "CREATE INDEX IF NOT EXISTS tasks_weeks\n" +
+                    " ON tasks(period_date, period_type)\n" +
+                    " WHERE period_type = 1;";
+            statement.execute(task_create);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            Statement statement = connection.createStatement();
+            String task_create = "CREATE INDEX IF NOT EXISTS tasks_months\n" +
+                    " ON tasks(period_date, period_type)\n" +
+                    " WHERE period_type = 2;";
+            statement.execute(task_create);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
