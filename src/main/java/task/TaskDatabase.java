@@ -26,7 +26,7 @@ public class TaskDatabase {
                     " description TEXT, \n" +
                     " completed INTEGER NOT NULL, \n" +
                     " period_type INTEGER NOT NULL, \n" +
-                    " period_id INTEGER NOT NULL);";
+                    " period_date TEXT NOT NULL);";
             statement.execute(task_create);
         } catch (SQLException e) {
             System.out.println(e.getMessage());

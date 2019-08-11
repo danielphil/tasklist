@@ -55,14 +55,14 @@ public class TaskSerialiser implements ITaskSerialiser {
 
     private void createTask(Task task) {
         // create task
-        String sql = "INSERT INTO tasks (description, completed, period_type, period_id) " +
+        String sql = "INSERT INTO tasks (description, completed, period_type, period_date) " +
                 "VALUES (?, ?, ?, ?);";
         try {
             PreparedStatement statement = database.connection.prepareStatement(sql);
             statement.setString(1, task.getDescription());
             statement.setBoolean(2, task.getCompleted());
-            statement.setInt(3, 0);
-            statement.setInt(4, 0);
+            statement.setInt(3, task.getTimePeriod().getType().ordinal());
+            statement.setString(4, task.getTimePeriod().getDate().toString());
             statement.executeUpdate();
 
             String query = "SELECT last_insert_rowid() AS LAST FROM tasks";
@@ -75,12 +75,14 @@ public class TaskSerialiser implements ITaskSerialiser {
     }
 
     private void updateTask(Task task) {
-        String sql = "UPDATE tasks SET description = ?, completed = ? WHERE id = ?";
+        String sql = "UPDATE tasks SET description = ?, completed = ?, period_type = ?, period_date = ? WHERE id = ?";
         try {
             PreparedStatement statement = database.connection.prepareStatement(sql);
             statement.setString(1, task.getDescription());
             statement.setBoolean(2, task.getCompleted());
-            statement.setLong(3, id.get());
+            statement.setInt(3, task.getTimePeriod().getType().ordinal());
+            statement.setString(4, task.getTimePeriod().getDate().toString());
+            statement.setLong(5, id.get());
             statement.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());

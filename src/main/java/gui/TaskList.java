@@ -13,8 +13,11 @@ public class TaskList extends JPanel {
     private final ArrayList<Task> tasks = new ArrayList<>();
     private final JButton addNewButton;
     private final Supplier<ITaskSerialiser> serialiserFactory;
+    private final NewTimePeriod timePeriod;
 
-    public TaskList(Supplier<ITaskSerialiser> serialiserFactory) {
+    public TaskList(Supplier<ITaskSerialiser> serialiserFactory, NewTimePeriod timePeriod) {
+        this.timePeriod = timePeriod;
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.serialiserFactory = serialiserFactory;
 
@@ -46,7 +49,7 @@ public class TaskList extends JPanel {
     private void addNewItem() {
         remove(addNewButton);
 
-        TaskEditor editor = new TaskEditor(new Task(serialiserFactory));
+        TaskEditor editor = new TaskEditor(new Task(serialiserFactory, timePeriod));
         editor.setOnTaskDeleted(this::onTaskDeleted);
         add(editor);
         editor.startEditing();

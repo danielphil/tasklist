@@ -1,14 +1,19 @@
 package task;
 
+import gui.NewTimePeriod;
+
 import java.util.function.Supplier;
 
 public class Task {
     private String description = "";
     private boolean completed;
+    private NewTimePeriod timePeriod;
+
     // TODO: make this private. This is just for quick testing at the moment
     public final ITaskSerialiser serialiser;
 
-    public Task(Supplier<ITaskSerialiser> serialiserFactory) {
+    public Task(Supplier<ITaskSerialiser> serialiserFactory, NewTimePeriod timePeriod) {
+        this.timePeriod = timePeriod;
         serialiser = serialiserFactory.get();
         serialiser.persist(this);
     }
@@ -34,5 +39,14 @@ public class Task {
 
     public boolean getCompleted() {
         return completed;
+    }
+
+    public void setTimePeriod(NewTimePeriod timePeriod) {
+        this.timePeriod = timePeriod;
+        serialiser.persist(this);
+    }
+
+    public NewTimePeriod getTimePeriod() {
+        return timePeriod;
     }
 }

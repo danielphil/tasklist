@@ -79,7 +79,7 @@ public class WeekPanel extends JPanel {
         for (int i = 0; i < 5; i++) {
             JPanel dayGrid = new JPanel(new GridLayout(0, 2));
 
-            JScrollPane scrollPane = new JScrollPane(new TaskList(serialiserFactory));
+            JScrollPane scrollPane = new JScrollPane(new TaskList(serialiserFactory, new NewTimePeriod(TimePeriodType.Day, date)));
             scrollPane.getVerticalScrollBar().setUnitIncrement(16);
             dayGrid.add(new JLabel(date.format(formatter)));
             dayGrid.add(scrollPane);
@@ -97,7 +97,8 @@ public class WeekPanel extends JPanel {
     }
 
     private JComponent createWeekView(Supplier<ITaskSerialiser> serialiserFactory) {
-        JScrollPane scrollPane = new JScrollPane(new TaskList(serialiserFactory));
+        // TODO: Need to fix the local date to the start of the week below
+        JScrollPane scrollPane = new JScrollPane(new TaskList(serialiserFactory, new NewTimePeriod(TimePeriodType.Week, weekStart.get())));
         scrollPane.setPreferredSize(new Dimension(250, 0));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         return scrollPane;
