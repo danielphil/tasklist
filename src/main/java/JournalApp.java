@@ -1,16 +1,7 @@
 import gui.MainPanel;
-import gui.TaskList;
-import gui.TaskListModel;
-import gui.TaskModel;
-import timeperiod.Day;
 import task.ITaskSerialiser;
-import task.TaskSerialiser;
-import timeperiod.ITimePeriodSerialiser;
-import timeperiod.TimePeriodSerialiser;
 
 import javax.swing.*;
-import java.awt.*;
-import java.time.LocalDate;
 import java.util.function.Supplier;
 
 public class JournalApp {

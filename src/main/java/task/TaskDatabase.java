@@ -39,39 +39,6 @@ public class TaskDatabase {
 
         try {
             Statement statement = connection.createStatement();
-            String task_create = "CREATE TABLE IF NOT EXISTS days (\n" +
-                    " id INTEGER PRIMARY KEY, \n" +
-                    " date TEXT NOT NULL, \n" +
-                    " taskId INTEGER NOT NULL);";
-            statement.execute(task_create);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-
-        try {
-            Statement statement = connection.createStatement();
-            String task_create = "CREATE TABLE IF NOT EXISTS weeks (\n" +
-                    " id INTEGER PRIMARY KEY, \n" +
-                    " date INTEGER NOT NULL, \n" +
-                    " taskId INTEGER NOT NULL);";
-            statement.execute(task_create);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-
-        try {
-            Statement statement = connection.createStatement();
-            String task_create = "CREATE TABLE IF NOT EXISTS months (\n" +
-                    " id INTEGER PRIMARY KEY, \n" +
-                    " date INTEGER NOT NULL, \n" +
-                    " taskId INTEGER NOT NULL);";
-            statement.execute(task_create);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-
-        try {
-            Statement statement = connection.createStatement();
             String task_create = "CREATE INDEX IF NOT EXISTS tasks_days\n" +
                     " ON tasks(period_date, period_type)\n" +
                     " WHERE period_type = 0;";
