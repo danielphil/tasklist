@@ -13,13 +13,13 @@ import java.time.temporal.WeekFields;
 import java.util.Locale;
 import java.util.function.Supplier;
 
-public class WeekPanel extends JPanel {
+public class MonthPanel extends JPanel {
     private final TaskDatabase db;
     private final Model<LocalDate> weekStart;
     private JPanel currentWeekGrid = null;
-    private JComponent currentWeekView = null;
+    private JComponent currentMonthView = null;
 
-    public WeekPanel(TaskDatabase db, Supplier<ITaskSerialiser> serialiserFactory, Model<LocalDate> weekStart) {
+    public MonthPanel(TaskDatabase db, Supplier<ITaskSerialiser> serialiserFactory, Model<LocalDate> weekStart) {
         this.db = db;
         this.weekStart = weekStart;
 
@@ -38,24 +38,24 @@ public class WeekPanel extends JPanel {
         };
         createWeekGrid.run();
 
-        Runnable createWeekView = () -> {
-            if (currentWeekView != null) {
-                remove(currentWeekView);
+        Runnable createMonthView = () -> {
+            if (currentMonthView != null) {
+                remove(currentMonthView);
             }
-            currentWeekView = createWeekView(serialiserFactory);
-            add(currentWeekView, BorderLayout.EAST);
+            currentMonthView = createMonthView(serialiserFactory);
+            add(currentMonthView, BorderLayout.EAST);
         };
-        createWeekView.run();
+        createMonthView.run();
 
         weekStart.observe(createWeekGrid);
-        weekStart.observe(createWeekView);
+        weekStart.observe(createMonthView);
     }
 
     private JPanel createDateSelector() {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel currentWeekLabel = new JLabel();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("w u");
-        Runnable updateWeek = () -> currentWeekLabel.setText("Week " + weekStart.get().format(formatter));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM u");
+        Runnable updateWeek = () -> currentWeekLabel.setText(weekStart.get().format(formatter));
         weekStart.observe(updateWeek);
         updateWeek.run();
 
@@ -67,7 +67,7 @@ public class WeekPanel extends JPanel {
         buttonPanel.add(Box.createHorizontalGlue());
 
         JButton prevButton = new JButton("<");
-        prevButton.addActionListener((ActionEvent e) -> backOneWeek());
+        prevButton.addActionListener((ActionEvent e) -> backOneMonth());
 
         buttonPanel.add(prevButton);
 
@@ -76,7 +76,7 @@ public class WeekPanel extends JPanel {
         buttonPanel.add(todayButton);
 
         JButton nextButton = new JButton(">");
-        nextButton.addActionListener((ActionEvent e) -> forwardOneWeek());
+        nextButton.addActionListener((ActionEvent e) -> forwardOneMonth());
         buttonPanel.add(nextButton);
 
         buttonPanel.add(Box.createHorizontalGlue());
@@ -110,9 +110,9 @@ public class WeekPanel extends JPanel {
         return weekGrid;
     }
 
-    private JComponent createWeekView(Supplier<ITaskSerialiser> serialiserFactory) {
-        // TODO: Need to fix the local date to the start of the week below
-        JScrollPane scrollPane = new JScrollPane(new TaskList(db, serialiserFactory, new NewTimePeriod(TimePeriodType.Week, weekStart.get())));
+    private JComponent createMonthView(Supplier<ITaskSerialiser> serialiserFactory) {
+        LocalDate firstDayOfMonth = weekStart.get().withDayOfMonth(1);
+        JScrollPane scrollPane = new JScrollPane(new TaskList(db, serialiserFactory, new NewTimePeriod(TimePeriodType.Month, firstDayOfMonth)));
         scrollPane.setPreferredSize(new Dimension(250, 0));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         return scrollPane;
@@ -124,11 +124,11 @@ public class WeekPanel extends JPanel {
         weekStart.set(now.with(field, 1));
     }
 
-    private void backOneWeek() {
-        weekStart.set(weekStart.get().minusWeeks(1));
+    private void backOneMonth() {
+        weekStart.set(weekStart.get().minusMonths(1));
     }
 
-    private void forwardOneWeek() {
-        weekStart.set(weekStart.get().plusWeeks(1));
+    private void forwardOneMonth() {
+        weekStart.set(weekStart.get().plusMonths(1));
     }
 }
