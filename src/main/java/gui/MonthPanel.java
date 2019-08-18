@@ -105,7 +105,7 @@ public class MonthPanel extends JPanel {
         for (int i = 0; i < 5; i++) {
             JPanel dayGrid = new JPanel(new GridLayout(0, 2));
 
-            JScrollPane scrollPane = new JScrollPane(new TaskList(db, serialiserFactory, new NewTimePeriod(TimePeriodType.Day, date)));
+            JScrollPane scrollPane = new JScrollPane(new TaskList(db, serialiserFactory, new TimePeriod(TimePeriodType.Day, date)));
             scrollPane.getVerticalScrollBar().setUnitIncrement(16);
             dayGrid.add(new JLabel(date.format(formatter)));
             dayGrid.add(scrollPane);
@@ -124,7 +124,7 @@ public class MonthPanel extends JPanel {
 
     private JComponent createMonthView(Supplier<ITaskSerialiser> serialiserFactory) {
         LocalDate firstDayOfMonth = weekStart.get().withDayOfMonth(1);
-        JScrollPane scrollPane = new JScrollPane(new TaskList(db, serialiserFactory, new NewTimePeriod(TimePeriodType.Month, firstDayOfMonth)));
+        JScrollPane scrollPane = new JScrollPane(new TaskList(db, serialiserFactory, new TimePeriod(TimePeriodType.Month, firstDayOfMonth)));
         scrollPane.setPreferredSize(new Dimension(250, 0));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         return scrollPane;

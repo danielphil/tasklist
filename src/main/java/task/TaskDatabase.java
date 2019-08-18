@@ -1,10 +1,9 @@
 package task;
 
-import gui.NewTimePeriod;
+import gui.TimePeriod;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class TaskDatabase {
@@ -68,7 +67,7 @@ public class TaskDatabase {
         }
     }
 
-    public ArrayList<Task> restore(Supplier<ITaskSerialiser> serialiserFactory, NewTimePeriod timePeriod) {
+    public ArrayList<Task> restore(Supplier<ITaskSerialiser> serialiserFactory, TimePeriod timePeriod) {
         ArrayList<Task> tasks = new ArrayList<>();
 
         String sql = "SELECT id FROM tasks WHERE period_type = ? AND period_date = ?";

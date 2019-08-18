@@ -2,11 +2,11 @@ package gui;
 
 import java.time.LocalDate;
 
-public class NewTimePeriod {
+public class TimePeriod {
     private TimePeriodType timePeriodType;
     private LocalDate date;
 
-    public NewTimePeriod(TimePeriodType type, LocalDate date) {
+    public TimePeriod(TimePeriodType type, LocalDate date) {
         timePeriodType = type;
         this.date = date;
     }

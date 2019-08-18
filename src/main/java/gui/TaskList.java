@@ -13,9 +13,9 @@ public class TaskList extends JPanel {
     private final ArrayList<Task> tasks;
     private final JButton addNewButton;
     private final Supplier<ITaskSerialiser> serialiserFactory;
-    private final NewTimePeriod timePeriod;
+    private final TimePeriod timePeriod;
 
-    public TaskList(TaskDatabase db, Supplier<ITaskSerialiser> serialiserFactory, NewTimePeriod timePeriod) {
+    public TaskList(TaskDatabase db, Supplier<ITaskSerialiser> serialiserFactory, TimePeriod timePeriod) {
         this.timePeriod = timePeriod;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

@@ -1,6 +1,6 @@
 package task;
 
-import gui.NewTimePeriod;
+import gui.TimePeriod;
 import gui.TimePeriodType;
 
 import java.sql.PreparedStatement;
@@ -60,7 +60,7 @@ public class TaskSerialiser implements ITaskSerialiser {
             this.id = Optional.of(id);
             task.setDescription(description);
             task.setCompleted(completed);
-            task.setTimePeriod(new NewTimePeriod(type, LocalDate.parse(periodDate)));
+            task.setTimePeriod(new TimePeriod(type, LocalDate.parse(periodDate)));
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Failed to get task");
