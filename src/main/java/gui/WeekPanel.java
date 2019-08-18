@@ -18,37 +18,47 @@ public class WeekPanel extends JPanel {
     private final Model<LocalDate> weekStart;
     private JPanel currentWeekGrid = null;
     private JComponent currentWeekView = null;
+    private boolean isVisible = false;
+    private final Supplier<ITaskSerialiser> serialiserFactory;
 
     public WeekPanel(TaskDatabase db, Supplier<ITaskSerialiser> serialiserFactory, Model<LocalDate> weekStart) {
         this.db = db;
         this.weekStart = weekStart;
+        this.serialiserFactory = serialiserFactory;
 
         setDateToToday();
 
         setLayout(new BorderLayout());
 
         add(createDateSelector(), BorderLayout.NORTH);
+        updatePanels();
 
-        Runnable createWeekGrid = () -> {
-            if (currentWeekGrid != null) {
-                remove(currentWeekGrid);
+        weekStart.observe(() -> {
+            if (isVisible) {
+                updatePanels();
             }
-            currentWeekGrid = createDayView(serialiserFactory);
-            add(currentWeekGrid, BorderLayout.CENTER);
-        };
-        createWeekGrid.run();
+        });
+    }
 
-        Runnable createWeekView = () -> {
-            if (currentWeekView != null) {
-                remove(currentWeekView);
-            }
-            currentWeekView = createWeekView(serialiserFactory);
-            add(currentWeekView, BorderLayout.EAST);
-        };
-        createWeekView.run();
+    public void setIsVisible(boolean isVisible) {
+        this.isVisible = isVisible;
+        if (isVisible) {
+            updatePanels();
+        }
+    }
 
-        weekStart.observe(createWeekGrid);
-        weekStart.observe(createWeekView);
+    private void updatePanels() {
+        if (currentWeekGrid != null) {
+            remove(currentWeekGrid);
+        }
+        currentWeekGrid = createDayView(serialiserFactory);
+        add(currentWeekGrid, BorderLayout.CENTER);
+
+        if (currentWeekView != null) {
+            remove(currentWeekView);
+        }
+        currentWeekView = createWeekView(serialiserFactory);
+        add(currentWeekView, BorderLayout.EAST);
     }
 
     private JPanel createDateSelector() {

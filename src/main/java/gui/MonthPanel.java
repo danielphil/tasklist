@@ -6,8 +6,10 @@ import task.TaskDatabase;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
@@ -18,37 +20,47 @@ public class MonthPanel extends JPanel {
     private final Model<LocalDate> weekStart;
     private JPanel currentWeekGrid = null;
     private JComponent currentMonthView = null;
+    private boolean isVisible = false;
+    private final Supplier<ITaskSerialiser> serialiserFactory;
 
     public MonthPanel(TaskDatabase db, Supplier<ITaskSerialiser> serialiserFactory, Model<LocalDate> weekStart) {
         this.db = db;
         this.weekStart = weekStart;
+        this.serialiserFactory = serialiserFactory;
 
         setDateToToday();
 
         setLayout(new BorderLayout());
 
         add(createDateSelector(), BorderLayout.NORTH);
+        updatePanels();
 
-        Runnable createWeekGrid = () -> {
-            if (currentWeekGrid != null) {
-                remove(currentWeekGrid);
+        weekStart.observe(() -> {
+            if (isVisible) {
+                updatePanels();
             }
-            currentWeekGrid = createDayView(serialiserFactory);
-            add(currentWeekGrid, BorderLayout.CENTER);
-        };
-        createWeekGrid.run();
+        });
+    }
 
-        Runnable createMonthView = () -> {
-            if (currentMonthView != null) {
-                remove(currentMonthView);
-            }
-            currentMonthView = createMonthView(serialiserFactory);
-            add(currentMonthView, BorderLayout.EAST);
-        };
-        createMonthView.run();
+    public void setIsVisible(boolean isVisible) {
+        this.isVisible = isVisible;
+        if (isVisible) {
+            updatePanels();
+        }
+    }
 
-        weekStart.observe(createWeekGrid);
-        weekStart.observe(createMonthView);
+    private void updatePanels() {
+        if (currentWeekGrid != null) {
+            remove(currentWeekGrid);
+        }
+        currentWeekGrid = createDayView(serialiserFactory);
+        add(currentWeekGrid, BorderLayout.CENTER);
+
+        if (currentMonthView != null) {
+            remove(currentMonthView);
+        }
+        currentMonthView = createMonthView(serialiserFactory);
+        add(currentMonthView, BorderLayout.EAST);
     }
 
     private JPanel createDateSelector() {
@@ -125,10 +137,15 @@ public class MonthPanel extends JPanel {
     }
 
     private void backOneMonth() {
-        weekStart.set(weekStart.get().minusMonths(1));
+        LocalDate newDate = weekStart.get().minusMonths(1);
+        newDate = newDate.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
+        weekStart.set(newDate);
+
     }
 
     private void forwardOneMonth() {
-        weekStart.set(weekStart.get().plusMonths(1));
+        LocalDate newDate = weekStart.get().plusMonths(1);
+        newDate = newDate.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
+        weekStart.set(newDate);
     }
 }
