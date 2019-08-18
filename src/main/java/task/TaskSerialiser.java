@@ -1,8 +1,12 @@
 package task;
 
+import gui.NewTimePeriod;
+import gui.TimePeriodType;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Optional;
 
 public class TaskSerialiser implements ITaskSerialiser {
@@ -40,7 +44,7 @@ public class TaskSerialiser implements ITaskSerialiser {
 
     @Override
     public void restore(long id, Task task) {
-        String sql = "SELECT description, completed FROM tasks WHERE id = ?";
+        String sql = "SELECT description, completed, period_type, period_date FROM tasks WHERE id = ?";
         restoring = true;
         try {
             PreparedStatement statement = database.connection.prepareStatement(sql);
@@ -51,9 +55,12 @@ public class TaskSerialiser implements ITaskSerialiser {
             }
             String description = results.getString(1);
             boolean completed = results.getBoolean(2);
+            TimePeriodType type = TimePeriodType.restore(results.getInt(3));
+            String periodDate = results.getString(4);
             this.id = Optional.of(id);
             task.setDescription(description);
             task.setCompleted(completed);
+            task.setTimePeriod(new NewTimePeriod(type, LocalDate.parse(periodDate)));
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Failed to get task");
@@ -70,7 +77,7 @@ public class TaskSerialiser implements ITaskSerialiser {
             PreparedStatement statement = database.connection.prepareStatement(sql);
             statement.setString(1, task.getDescription());
             statement.setBoolean(2, task.getCompleted());
-            statement.setInt(3, task.getTimePeriod().getType().ordinal());
+            statement.setInt(3, task.getTimePeriod().getType().getValue());
             statement.setString(4, task.getTimePeriod().getDate().toString());
             statement.executeUpdate();
 
@@ -89,7 +96,7 @@ public class TaskSerialiser implements ITaskSerialiser {
             PreparedStatement statement = database.connection.prepareStatement(sql);
             statement.setString(1, task.getDescription());
             statement.setBoolean(2, task.getCompleted());
-            statement.setInt(3, task.getTimePeriod().getType().ordinal());
+            statement.setInt(3, task.getTimePeriod().getType().getValue());
             statement.setString(4, task.getTimePeriod().getDate().toString());
             statement.setLong(5, id.get());
             statement.executeUpdate();
