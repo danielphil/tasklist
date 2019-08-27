@@ -68,8 +68,7 @@ public class JournalApp {
         private ArrayList<Object[]> data = new ArrayList<>(Arrays.asList(
             new Object[]{false, "Eat toast"},
             new Object[]{true, "buy bananas"},
-            new Object[]{false, "go to sleep"},
-            new Object[]{null, ""}
+            new Object[]{false, "go to sleep"}
         ));
 
         public int getColumnCount() {
@@ -77,7 +76,7 @@ public class JournalApp {
         }
 
         public int getRowCount() {
-            return data.size();
+            return data.size() + 1;
         }
 
         public String getColumnName(int col) {
@@ -85,7 +84,13 @@ public class JournalApp {
         }
 
         public Object getValueAt(int row, int col) {
-            return data.get(row)[col];
+            if (row == getRowCount() - 1 && col == 0) {
+                return false;
+            } else if (row == getRowCount() - 1 && col == 1) {
+                return "";
+            } else {
+                return data.get(row)[col];
+            }
         }
 
         /*
@@ -105,7 +110,11 @@ public class JournalApp {
         public boolean isCellEditable(int row, int col) {
             //Note that the data/cell address is constant,
             //no matter where the cell appears onscreen.
-            return true;
+            if (row == getRowCount() - 1 && col == 0) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
         /*
@@ -114,12 +123,23 @@ public class JournalApp {
          */
         public void setValueAt(Object value, int row, int col) {
             // don't let the user change the checkbox value of the empty row
-            if (row == getRowCount() - 1 && col == 0) {
-                data.get(row)[col] = false;
+
+            if (row != getRowCount() - 1 && col == 1 && ((String) value).isEmpty()) {
+                removeRows(new int[]{row});
+            } else if (row == getRowCount() - 1 && col == 1) {
+                var str = (String) value;
+                if (!str.isEmpty()) {
+                    data.add(new Object[]{false, value});
+                    fireTableDataChanged();
+                } else {
+                    // If we don't do this, the cell is highlighted red and need
+                    // to press escape to get out of the editor.
+                    fireTableCellUpdated(row, col);
+                }
             } else {
                 data.get(row)[col] = value;
+                fireTableCellUpdated(row, col);
             }
-            fireTableCellUpdated(row, col);
         }
 
         public void removeRows(int[] rows) {
