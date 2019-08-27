@@ -1,6 +1,5 @@
 package gui;
 
-import task.ITaskSerialiser;
 import task.TaskDatabase;
 
 import javax.swing.*;
@@ -19,12 +18,10 @@ public class WeekPanel extends JPanel {
     private JPanel currentWeekGrid = null;
     private JComponent currentWeekView = null;
     private boolean isVisible = false;
-    private final Supplier<ITaskSerialiser> serialiserFactory;
 
-    public WeekPanel(TaskDatabase db, Supplier<ITaskSerialiser> serialiserFactory, Model<LocalDate> weekStart) {
+    public WeekPanel(TaskDatabase db, Model<LocalDate> weekStart) {
         this.db = db;
         this.weekStart = weekStart;
-        this.serialiserFactory = serialiserFactory;
 
         setDateToToday();
 
@@ -51,13 +48,13 @@ public class WeekPanel extends JPanel {
         if (currentWeekGrid != null) {
             remove(currentWeekGrid);
         }
-        currentWeekGrid = createDayView(serialiserFactory);
+        currentWeekGrid = createDayView();
         add(currentWeekGrid, BorderLayout.CENTER);
 
         if (currentWeekView != null) {
             remove(currentWeekView);
         }
-        currentWeekView = createWeekView(serialiserFactory);
+        currentWeekView = createWeekView();
         add(currentWeekView, BorderLayout.EAST);
     }
 
@@ -95,7 +92,7 @@ public class WeekPanel extends JPanel {
         return panel;
     }
 
-    private JPanel createDayView(Supplier<ITaskSerialiser> serialiserFactory) {
+    private JPanel createDayView() {
         LocalDate date = weekStart.get();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E d MMM");
 
@@ -103,7 +100,7 @@ public class WeekPanel extends JPanel {
         for (int i = 0; i < 5; i++) {
             JPanel dayGrid = new JPanel(new GridLayout(0, 2));
 
-            JScrollPane scrollPane = new JScrollPane(new TaskList(db, serialiserFactory, new TimePeriod(TimePeriodType.Day, date)));
+            JScrollPane scrollPane = new JScrollPane(new TaskList(db, new TimePeriod(TimePeriodType.Day, date)));
             scrollPane.getVerticalScrollBar().setUnitIncrement(16);
             dayGrid.add(new JLabel(date.format(formatter)));
             dayGrid.add(scrollPane);
@@ -120,9 +117,9 @@ public class WeekPanel extends JPanel {
         return weekGrid;
     }
 
-    private JComponent createWeekView(Supplier<ITaskSerialiser> serialiserFactory) {
+    private JComponent createWeekView() {
         // TODO: Need to fix the local date to the start of the week below
-        JScrollPane scrollPane = new JScrollPane(new TaskList(db, serialiserFactory, new TimePeriod(TimePeriodType.Week, weekStart.get())));
+        JScrollPane scrollPane = new JScrollPane(new TaskList(db, new TimePeriod(TimePeriodType.Week, weekStart.get())));
         scrollPane.setPreferredSize(new Dimension(250, 0));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         return scrollPane;

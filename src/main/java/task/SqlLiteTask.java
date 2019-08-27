@@ -9,14 +9,20 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 
-public class TaskSerialiser implements ITaskSerialiser {
-    private TaskDatabase database;
+public class SqlLiteTask extends Task {
+    private final TaskDatabase database;
     private Optional<Long> id = Optional.empty();
-    boolean restoring = false;
 
-
-    public TaskSerialiser(TaskDatabase database) {
+    public SqlLiteTask(TaskDatabase database, TimePeriod timePeriod) {
+        super(timePeriod);
         this.database = database;
+        persist();
+    }
+
+    public SqlLiteTask(TaskDatabase database, long id) {
+        this.database = database;
+        this.id = Optional.of(id);
+        restore();
     }
 
     public Optional<Long> getId() {
@@ -24,31 +30,42 @@ public class TaskSerialiser implements ITaskSerialiser {
     }
 
     @Override
-    public void persist(Task task) {
-        if (restoring) {
-            return;
-        }
+    public void setDescription(String description) {
+        super.setDescription(description);
+        persist();
+    }
 
-        if (task.getDescription().isEmpty()) {
+    @Override
+    public void setCompleted(boolean completed) {
+        super.setCompleted(completed);
+        persist();
+    }
+
+    @Override
+    public void setTimePeriod(TimePeriod timePeriod) {
+        super.setTimePeriod(timePeriod);
+        persist();
+    }
+
+    private void persist() {
+        if (getDescription().isEmpty()) {
             if (id.isPresent()) {
                 removeTask();
             }
         } else {
             if (id.isPresent()) {
-                updateTask(task);
+                updateTask();
             } else {
-                createTask(task);
+                createTask();
             }
         }
     }
 
-    @Override
-    public void restore(long id, Task task) {
+    private void restore() {
         String sql = "SELECT description, completed, period_type, period_date FROM tasks WHERE id = ?";
-        restoring = true;
         try {
             PreparedStatement statement = database.connection.prepareStatement(sql);
-            statement.setLong(1, id);
+            statement.setLong(1, id.get());
             ResultSet results = statement.executeQuery();
             if (!results.next()) {
                 throw new RuntimeException("Invalid ID for task");
@@ -57,28 +74,27 @@ public class TaskSerialiser implements ITaskSerialiser {
             boolean completed = results.getBoolean(2);
             TimePeriodType type = TimePeriodType.restore(results.getInt(3));
             String periodDate = results.getString(4);
-            this.id = Optional.of(id);
-            task.setDescription(description);
-            task.setCompleted(completed);
-            task.setTimePeriod(new TimePeriod(type, LocalDate.parse(periodDate)));
+
+            // Call the base class here to avoid attempting to serialise new values
+            super.setDescription(description);
+            super.setCompleted(completed);
+            super.setTimePeriod(new TimePeriod(type, LocalDate.parse(periodDate)));
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Failed to get task");
-        } finally {
-            restoring = false;
         }
     }
 
-    private void createTask(Task task) {
+    private void createTask() {
         // create task
         String sql = "INSERT INTO tasks (description, completed, period_type, period_date) " +
                 "VALUES (?, ?, ?, ?);";
         try {
             PreparedStatement statement = database.connection.prepareStatement(sql);
-            statement.setString(1, task.getDescription());
-            statement.setBoolean(2, task.getCompleted());
-            statement.setInt(3, task.getTimePeriod().getType().getValue());
-            statement.setString(4, task.getTimePeriod().getDate().toString());
+            statement.setString(1, getDescription());
+            statement.setBoolean(2, getCompleted());
+            statement.setInt(3, getTimePeriod().getType().getValue());
+            statement.setString(4, getTimePeriod().getDate().toString());
             statement.executeUpdate();
 
             String query = "SELECT last_insert_rowid() AS LAST FROM tasks";
@@ -90,14 +106,14 @@ public class TaskSerialiser implements ITaskSerialiser {
         }
     }
 
-    private void updateTask(Task task) {
+    private void updateTask() {
         String sql = "UPDATE tasks SET description = ?, completed = ?, period_type = ?, period_date = ? WHERE id = ?";
         try {
             PreparedStatement statement = database.connection.prepareStatement(sql);
-            statement.setString(1, task.getDescription());
-            statement.setBoolean(2, task.getCompleted());
-            statement.setInt(3, task.getTimePeriod().getType().getValue());
-            statement.setString(4, task.getTimePeriod().getDate().toString());
+            statement.setString(1, getDescription());
+            statement.setBoolean(2, getCompleted());
+            statement.setInt(3, getTimePeriod().getType().getValue());
+            statement.setString(4, getTimePeriod().getDate().toString());
             statement.setLong(5, id.get());
             statement.executeUpdate();
         } catch (SQLException e) {

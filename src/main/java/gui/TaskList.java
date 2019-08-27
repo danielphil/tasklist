@@ -1,27 +1,26 @@
 package gui;
 
-import task.ITaskSerialiser;
+import task.SqlLiteTask;
 import task.Task;
 import task.TaskDatabase;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 public class TaskList extends JPanel {
     private final ArrayList<Task> tasks;
     private final JButton addNewButton;
-    private final Supplier<ITaskSerialiser> serialiserFactory;
     private final TimePeriod timePeriod;
+    private final TaskDatabase database;
 
-    public TaskList(TaskDatabase db, Supplier<ITaskSerialiser> serialiserFactory, TimePeriod timePeriod) {
+    public TaskList(TaskDatabase db, TimePeriod timePeriod) {
         this.timePeriod = timePeriod;
+        this.database = db;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.serialiserFactory = serialiserFactory;
 
-        tasks = db.restore(serialiserFactory, timePeriod);
+        tasks = db.restore(timePeriod);
         for (Task task : tasks) {
             addItem(task);
         }
@@ -47,7 +46,7 @@ public class TaskList extends JPanel {
     private void addNewItem() {
         remove(addNewButton);
 
-        TaskEditor editor = addItem(new Task(serialiserFactory, timePeriod));
+        TaskEditor editor = addItem(new SqlLiteTask(database, timePeriod));
         editor.startEditing();
         editor.setOnEditCompleteHandler(this::onAddComplete);
 

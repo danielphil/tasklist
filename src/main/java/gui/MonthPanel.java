@@ -1,6 +1,5 @@
 package gui;
 
-import task.ITaskSerialiser;
 import task.TaskDatabase;
 
 import javax.swing.*;
@@ -13,7 +12,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
-import java.util.function.Supplier;
 
 public class MonthPanel extends JPanel {
     private final TaskDatabase db;
@@ -21,12 +19,10 @@ public class MonthPanel extends JPanel {
     private JPanel currentWeekGrid = null;
     private JComponent currentMonthView = null;
     private boolean isVisible = false;
-    private final Supplier<ITaskSerialiser> serialiserFactory;
 
-    public MonthPanel(TaskDatabase db, Supplier<ITaskSerialiser> serialiserFactory, Model<LocalDate> weekStart) {
+    public MonthPanel(TaskDatabase db, Model<LocalDate> weekStart) {
         this.db = db;
         this.weekStart = weekStart;
-        this.serialiserFactory = serialiserFactory;
 
         setDateToToday();
 
@@ -53,13 +49,13 @@ public class MonthPanel extends JPanel {
         if (currentWeekGrid != null) {
             remove(currentWeekGrid);
         }
-        currentWeekGrid = createDayView(serialiserFactory);
+        currentWeekGrid = createDayView();
         add(currentWeekGrid, BorderLayout.CENTER);
 
         if (currentMonthView != null) {
             remove(currentMonthView);
         }
-        currentMonthView = createMonthView(serialiserFactory);
+        currentMonthView = createMonthView();
         add(currentMonthView, BorderLayout.EAST);
     }
 
@@ -97,7 +93,7 @@ public class MonthPanel extends JPanel {
         return panel;
     }
 
-    private JPanel createDayView(Supplier<ITaskSerialiser> serialiserFactory) {
+    private JPanel createDayView() {
         LocalDate date = weekStart.get();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E d MMM");
 
@@ -105,7 +101,7 @@ public class MonthPanel extends JPanel {
         for (int i = 0; i < 5; i++) {
             JPanel dayGrid = new JPanel(new GridLayout(0, 2));
 
-            JScrollPane scrollPane = new JScrollPane(new TaskList(db, serialiserFactory, new TimePeriod(TimePeriodType.Day, date)));
+            JScrollPane scrollPane = new JScrollPane(new TaskList(db, new TimePeriod(TimePeriodType.Day, date)));
             scrollPane.getVerticalScrollBar().setUnitIncrement(16);
             dayGrid.add(new JLabel(date.format(formatter)));
             dayGrid.add(scrollPane);
@@ -122,9 +118,9 @@ public class MonthPanel extends JPanel {
         return weekGrid;
     }
 
-    private JComponent createMonthView(Supplier<ITaskSerialiser> serialiserFactory) {
+    private JComponent createMonthView() {
         LocalDate firstDayOfMonth = weekStart.get().withDayOfMonth(1);
-        JScrollPane scrollPane = new JScrollPane(new TaskList(db, serialiserFactory, new TimePeriod(TimePeriodType.Month, firstDayOfMonth)));
+        JScrollPane scrollPane = new JScrollPane(new TaskList(db, new TimePeriod(TimePeriodType.Month, firstDayOfMonth)));
         scrollPane.setPreferredSize(new Dimension(250, 0));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         return scrollPane;

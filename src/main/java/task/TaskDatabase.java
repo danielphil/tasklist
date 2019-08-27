@@ -67,7 +67,7 @@ public class TaskDatabase {
         }
     }
 
-    public ArrayList<Task> restore(Supplier<ITaskSerialiser> serialiserFactory, TimePeriod timePeriod) {
+    public ArrayList<Task> restore(TimePeriod timePeriod) {
         ArrayList<Task> tasks = new ArrayList<>();
 
         String sql = "SELECT id FROM tasks WHERE period_type = ? AND period_date = ?";
@@ -78,7 +78,7 @@ public class TaskDatabase {
             ResultSet results = statement.executeQuery();
             while (results.next()) {
                 long id = results.getLong(1);
-                tasks.add(new Task(serialiserFactory, id));
+                tasks.add(new SqlLiteTask(this, id));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
