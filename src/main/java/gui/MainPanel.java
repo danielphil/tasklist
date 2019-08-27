@@ -12,7 +12,7 @@ public class MainPanel extends JPanel {
     public MainPanel(TaskDatabase db) {
         setLayout(new GridLayout(1, 1));
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        var tabbedPane = new JTabbedPane();
 
         Model<LocalDate> weekStart = new Model<>();
         WeekPanel weekPanel = new WeekPanel(db, weekStart);
